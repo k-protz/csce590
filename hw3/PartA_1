@@ -1,0 +1,40 @@
+import numpy as np
+
+def f(x):
+    """Function to minimize: f(x) = 5x1^2 + x2^2 + 4x1x2 - 14x1 - 6x2 + 20"""
+    x1, x2 = x
+    return 5 * x1**2 + x2**2 + 4 * x1 * x2 - 14 * x1 - 6 * x2 + 20
+
+def grad_f(x):
+    """Gradient of the function f"""
+    x1, x2 = x
+    grad_x1 = 10 * x1 + 4 * x2 - 14
+    grad_x2 = 2 * x2 + 4 * x1 - 6
+    return np.array([grad_x1, grad_x2])
+
+def steepest_descent(f, grad_f, x0, alpha, tol, max_iter):
+    """Steepest descent algorithm"""
+    x = x0
+    iter_count = 0
+    while iter_count < max_iter:
+        grad = grad_f(x)
+        if np.linalg.norm(grad) < tol:
+            break  # Stopping criterion: gradient norm is below tolerance
+        # Update x using steepest descent direction and step size
+        x = x - alpha * grad
+        iter_count += 1
+    return x, f(x)
+
+# Initial guess
+x0 = np.array([0, 0])
+# Step size (learning rate)
+alpha = 0.1
+# Tolerance for stopping criterion
+tol = 1e-6
+# Maximum number of iterations
+max_iter = 1000
+
+# Run steepest descent algorithm
+optimal_x, min_value = steepest_descent(f, grad_f, x0, alpha, tol, max_iter)
+print("Optimal x:", optimal_x)
+print("Minimum value of f:", min_value)
