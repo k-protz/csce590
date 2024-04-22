@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define matrix A^T
+A_T = np.array([[1, -1, 0],
+                [1, 1, 2],
+                [1, -1, 0],
+                [1, 1, 2]])
+
+# Gram-Schmidt Process
+def gram_schmidt(A):
+    Q = np.zeros_like(A, dtype=float)
+    R = np.zeros((A.shape[1], A.shape[1]), dtype=float)
+    for i in range(A.shape[1]):
+        # Orthogonalization step
+        v = A[:, i].astype(float)  # Ensure consistent data type
+        for j in range(i):
+            R[j, i] = np.dot(Q[:, j], A[:, i])
+            v -= R[j, i] * Q[:, j]
+        # Normalization step
+        norm_v = np.linalg.norm(v)
+        if norm_v == 0:
+            Q[:, i] = np.zeros_like(v)
+        else:
+            Q[:, i] = v / norm_v
+        R[i, i] = norm_v
+    return Q, R
+
+# Apply Gram-Schmidt Process
+Q, R = gram_schmidt(A_T)
+
+# Plot column vectors of A and orthonormal vectors
+origin = np.zeros(3)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.quiver(*origin, *A_T[:,0], color='b', label='Column 1 of A')
+ax.quiver(*origin, *A_T[:,1], color='g', label='Column 2 of A')
+ax.quiver(*origin, *A_T[:,2], color='r', label='Column 3 of A')
+ax.quiver(*origin, *Q[:,0], color='c', label='Orthonormal 1')
+ax.quiver(*origin, *Q[:,1], color='m', label='Orthonormal 2')
+ax.quiver(*origin, *Q[:,2], color='y', label='Orthonormal 3')
+ax.set_xlim([-2, 2])
+ax.set_ylim([-2, 2])
+ax.set_zlim([-2, 2])
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.view_init(elev=20, azim=12)  # Set the elevation and azimuth angles
+plt.title('Column Vectors of A and Orthonormal Vectors')
+plt.legend()
+plt.show()
