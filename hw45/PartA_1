@@ -1,0 +1,178 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the objective function and its gradient
+def f(x):
+    return 5*x[0]**2 + x[1]**2 + 2*x[2]**2 + 4*x[0]*x[1] - 14*x[0] - 6*x[1] + 20
+
+def grad_f(x):
+    return np.array([10*x[0] + 4*x[1] - 14, 2*x[1] + 4*x[0] - 6, 4*x[2]])
+
+# Steepest Descent (SD) Algorithm with Bisection Algorithm for Step Size Selection
+def steepest_descent(x0, epsilon=1e-6, max_iter=1000, stepsize_tol=1e-6):
+    x_history = [x0]
+    cost_history = [f(x0)]
+    x = x0
+    k = 0
+    while k < max_iter:
+        grad = grad_f(x)
+        if np.linalg.norm(grad) < epsilon:
+            break
+        # Bisection algorithm for step size selection
+        alpha_low = 0
+        alpha_high = 1
+        alpha = (alpha_low + alpha_high) / 2
+        while alpha_high - alpha_low > stepsize_tol:
+            alpha = (alpha_low + alpha_high) / 2
+            x_next = x - alpha * grad
+            if f(x_next) < f(x):
+                alpha_high = alpha
+            else:
+                alpha_low = alpha
+        x = x - alpha * grad
+        x_history.append(x)
+        cost_history.append(f(x))
+        k += 1
+    return x_history, cost_history
+
+# Initial guess
+x0 = np.array([0, 0, 0])
+
+# Run Steepest Descent algorithm
+x_history, cost_history = steepest_descent(x0)
+
+# Plot cost vs iteration
+plt.plot(cost_history, marker='o')
+plt.xlabel('Iteration')
+plt.ylabel('Cost')
+plt.title('Cost vs Iteration (Steepest Descent)')
+plt.grid(True)
+plt.show()
+
+
+# Define a function to plot cost contours and solution sequence
+def plot_contour_and_sequence(x_history):
+    # Generate grid points for contour plot
+    x1 = np.linspace(-5, 5, 100)
+    x2 = np.linspace(-5, 5, 100)
+    X1, X2 = np.meshgrid(x1, x2)
+    Z = f([X1, X2, 0])
+
+    # Plot contours
+    plt.contour(X1, X2, Z, levels=50)
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.title('Cost Contours')
+
+    # Plot solution sequence
+    x_history = np.array(x_history)
+    plt.plot(x_history[:, 0], x_history[:, 1], marker='o', color='red', label='Solution sequence')
+    plt.legend()
+    plt.show()
+
+# Plot cost contours and solution sequence
+plot_contour_and_sequence(x_history)
+
+
+
+# Steepest Descent (SD) Algorithm with Bisection Algorithm for Step Size Selection
+def steepest_descent(x0, epsilon=1e-6, max_iter=1000, stepsize_tol=1e-6):
+    x_history = [x0]
+    cost_history = [f(x0)]
+    x = x0
+    k = 0
+    while k < max_iter:
+        grad = grad_f(x)
+        if np.linalg.norm(grad) < epsilon:
+            break
+        # Bisection algorithm for step size selection
+        alpha_low = 0
+        alpha_high = 1
+        alpha = (alpha_low + alpha_high) / 2
+        while alpha_high - alpha_low > stepsize_tol:
+            alpha = (alpha_low + alpha_high) / 2
+            x_next = x - alpha * grad
+            if f(x_next) < f(x):
+                alpha_high = alpha
+            else:
+                alpha_low = alpha
+        x = x - alpha * grad
+        x_history.append(x)
+        cost_history.append(f(x))
+        k += 1
+    return x_history, cost_history
+
+# Initial guess
+x0 = np.array([0, 0, 0])
+
+# Run Steepest Descent algorithm
+x_history, cost_history = steepest_descent(x0)
+
+# Plot cost vs iteration
+plt.plot(cost_history, marker='o')
+plt.xlabel('Iteration')
+plt.ylabel('Cost')
+plt.title('Cost vs Iteration (Steepest Descent)')
+plt.grid(True)
+plt.show()
+
+# Define a function to plot cost contours and solution sequence
+def plot_contour_and_sequence(x_history):
+    # Generate grid points for contour plot
+    x1 = np.linspace(-5, 5, 100)
+    x2 = np.linspace(-5, 5, 100)
+    X1, X2 = np.meshgrid(x1, x2)
+    Z = f([X1, X2, 0])
+
+    # Plot contours
+    plt.contour(X1, X2, Z, levels=50)
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.title('Cost Contours')
+
+    # Plot solution sequence
+    x_history = np.array(x_history)
+    plt.plot(x_history[:, 0], x_history[:, 1], marker='o', color='red', label='Solution sequence')
+    plt.legend()
+    plt.show()
+
+# Plot cost contours and solution sequence
+plot_contour_and_sequence(x_history)
+
+
+
+
+# Newton's (NR) Algorithm
+def newtons_method(x0, epsilon=1e-6, max_iter=1000):
+    x_history = [x0]
+    cost_history = [f(x0)]
+    x = x0
+    k = 0
+    while k < max_iter:
+        grad = grad_f(x)
+        hessian = np.array([[10, 4, 0], [4, 2, 0], [0, 0, 4]])  # Hessian matrix
+        delta_x = -np.linalg.inv(hessian) @ grad  # Newton's update
+        x = x + delta_x
+        x_history.append(x)
+        cost_history.append(f(x))
+        if np.linalg.norm(delta_x) < epsilon:
+            break
+        k += 1
+    return x_history, cost_history
+
+# Initial guess
+x0 = np.array([0, 0, 0])
+
+# Run Newton's algorithm
+x_history_newton, cost_history_newton = newtons_method(x0)
+
+# Plot cost vs iteration for Newton's algorithm
+plt.plot(cost_history_newton, marker='o', color='green')
+plt.xlabel('Iteration')
+plt.ylabel('Cost')
+plt.title("Cost vs Iteration (Newton's Method)")
+plt.grid(True)
+plt.show()
+
+# Plot cost contours and solution sequence for Newton's algorithm
+plot_contour_and_sequence(x_history_newton)
