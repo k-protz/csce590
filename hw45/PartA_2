@@ -1,0 +1,29 @@
+import numpy as np
+
+# Given data
+t = np.array([-2, -1, 0, 1, 2])
+y = np.array([2, -10, 0, 2, 1])
+
+# Formulate the design matrix
+A = np.array([np.ones_like(t), t, t**2]).T
+
+# Compute A^T
+A_T = A.T
+
+# Compute A^T A
+A_T_A = np.dot(A_T, A)
+
+# Compute A^T y
+A_T_y = np.dot(A_T, y)
+
+# Solve the system of equations A^T A x = A^T y
+coefficients = np.linalg.solve(A_T_A, A_T_y)
+
+# Extract coefficients
+x0, x1, x2 = coefficients
+
+# Print the coefficients
+print("Coefficients:")
+print("x0 =", x0)
+print("x1 =", x1)
+print("x2 =", x2)
