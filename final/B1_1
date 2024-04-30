@@ -1,0 +1,103 @@
+########## inputs ##########
+
+A = [[1, 1, 1],
+     [0, 0, 1],
+     [1, 0, 1],
+     [2, 0, 5],
+     [-7, 8, 0],
+     [1, 2, -1]]
+
+b = [[3], [1], [2], [8], [0], [1]]
+
+########## main ##########
+
+### get A^T
+AT = transpose_matrix(A)
+# print(AT)
+
+### solve for A^T*A
+ATA = multiply_matrices(AT, A)
+# print(ATA)
+
+### invert A^T*A
+ATAinv = invert_matrix(ATA)
+# print(ATAinv)
+
+### solve for (A^T*A)*A^T
+ATAinvAT = multiply_matrices(ATAinv, AT)
+
+### solve for (A^T*A)*A^T*b
+ATAinvATb = multiply_matrices(ATAinvAT, b)
+print(f'x = {ATAinvATb}')
+
+########## functions ##########
+
+def transpose_matrix(A):
+    # Get the number of rows and columns of the matrix A
+    rows = len(A)
+    cols = len(A[0])
+
+    # Initialize an empty matrix for the transpose
+    A_transpose = [[0 for _ in range(rows)] for _ in range(cols)]
+
+    # Iterate through each element of A and assign it to the transpose matrix
+    for i in range(rows):
+        for j in range(cols):
+            A_transpose[j][i] = A[i][j]
+
+    return A_transpose
+
+def multiply_matrices(A, B):
+    # Get the dimensions of matrices A and B
+    rows_A = len(A)
+    cols_A = len(A[0])
+    rows_B = len(B)
+    cols_B = len(B[0])
+
+    # Check if the matrices can be multiplied (number of columns in A equals number of rows in B)
+    if cols_A != rows_B:
+        raise ValueError("Matrices cannot be multiplied. Inner dimensions do not match.")
+
+    # Initialize an empty matrix for the result
+    result = [[0 for _ in range(cols_B)] for _ in range(rows_A)]
+
+    # Perform matrix multiplication
+    for i in range(rows_A):
+        for j in range(cols_B):
+            for k in range(cols_A):  # or rows_B since they're equal
+                result[i][j] += A[i][k] * B[k][j]
+
+    return result
+
+def invert_matrix(A):
+    # Check if the matrix is square
+    n = len(A)
+    if n != len(A[0]):
+        raise ValueError("Matrix must be square to be invertible.")
+
+    # Augmenting the matrix with an identity matrix of the same size
+    augmented_matrix = [row + [1 if i == j else 0 for j in range(n)] for i, row in enumerate(A)]
+
+    # Gauss-Jordan elimination
+    for col in range(n):
+        # Partial pivoting to avoid division by zero
+        max_row = max(range(col, n), key=lambda r: abs(augmented_matrix[r][col]))
+        augmented_matrix[col], augmented_matrix[max_row] = augmented_matrix[max_row], augmented_matrix[col]
+
+        # Make the diagonal element 1
+        pivot = augmented_matrix[col][col]
+        if pivot != 0:
+            for j in range(col, 2 * n):
+                augmented_matrix[col][j] /= pivot
+
+        # Eliminate other elements in the same column
+        for i in range(n):
+            if i != col:
+                factor = augmented_matrix[i][col]
+                for j in range(col, 2 * n):
+                    augmented_matrix[i][j] -= factor * augmented_matrix[col][j]
+
+    # Extracting the inverted matrix from the augmented matrix
+    inverted_matrix = [row[n:] for row in augmented_matrix]
+
+    return inverted_matrix
