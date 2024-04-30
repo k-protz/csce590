@@ -1,0 +1,77 @@
+########## imports ##########
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+########## inputs ##########
+
+A = [[1, 1, 1],
+     [0, 0, 1],
+     [1, 0, 1],
+     [2, 0, 5],
+     [-7, 8, 0],
+     [1, 2, -1]]
+
+b = [[3], [1], [2], [8], [0], [1]]
+
+x = [[0.8503168350744992], [0.7437917451618428], [1.254838157218702]]
+
+########## main ##########
+
+# Define the lambda range for search
+lambda_values = np.linspace(0.001, 0.999, 1000)  # Adjust the range as needed
+
+# Initialize variables for optimal lambda and minimum objective function value
+optimal_lambda = None
+min_obj_value = float('inf')
+obj_values = []  # List to store objective function values
+
+# Iterate through lambda values and find the optimal lambda
+for lmbda in lambda_values:
+    obj_value = objective_function(A, b, x, lmbda)
+    obj_values.append(obj_value)
+    if obj_value < min_obj_value:
+        min_obj_value = obj_value
+        optimal_lambda = lmbda
+
+# Plot the objective function values for each lambda
+plt.plot(lambda_values, obj_values, label='Objective Function')
+plt.xlabel('Lambda')
+plt.ylabel('Objective Function Value')
+plt.title('Objective Function vs Lambda')
+plt.axvline(x=optimal_lambda, color='r', linestyle='--', label='Optimal Lambda')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+print("Optimal Lambda:", optimal_lambda)
+print("Minimum Objective Function Value:", min_obj_value)
+
+########## functions ##########
+
+def dot_product(v1, v2):
+    # Calculate the dot product of two vectors
+    try:
+        return sum(v1[i] * v2[i] for i in range(len(v1)))
+    except:
+        return sum(v1[i][0] * v2[i][0] for i in range(len(v1)))
+
+def norm_squared(vector):
+    # Calculate the squared L2 norm of a vector
+    return dot_product(vector, vector)
+
+def objective_function(A, b, x, lmbda):
+    # Calculate the squared norm of the residual (Ax - b)
+    residual = [0] * len(b)
+    for i in range(len(b)):
+        for j in range(len(x)):
+            residual[i] += A[i][j] * x[j][0]
+        residual[i] -= b[i][0]
+    residual_norm_squared = norm_squared(residual)
+    
+    # Calculate the squared norm of x
+    x_norm_squared = dot_product(x, x)
+    
+    # Calculate the objective function value
+    obj_value = residual_norm_squared + lmbda * x_norm_squared
+    return obj_value
