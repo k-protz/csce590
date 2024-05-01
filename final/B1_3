@@ -1,0 +1,78 @@
+########## imports ##########
+
+import numpy as np
+
+########## inputs ##########
+
+# Coefficients of the objective function
+c = np.array([1, 2, 4, 0, 0, 0])
+
+# Coefficients of the constraints (A*x = b)
+A = np.array([
+    [1, 1, 1, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0],
+    [1, 0, 1, 0, 0, 0],
+    [2, 0, 5, 0, 0, 0],
+    [-7, 8, 0, 0, 0, 0],
+    [1, 2, -1, 0, 0, 0]
+])
+b = np.array([3, 1, 2, 8, 0, 1])
+
+########## main ##########
+
+# Solve the linear programming problem using the simplex algorithm
+solution, objective_value = simplex_algorithm(A, b, c)
+
+print("Optimal Solution:", solution)
+print("Optimal Objective Value:", objective_value)
+
+########## functions ##########
+
+def dot_product(A, B):
+    return np.sum(A * B)
+
+def matrix_multiply(A, B):
+    result = np.zeros((A.shape[0], B.shape[1]))
+    for i in range(A.shape[0]):
+        for j in range(B.shape[1]):
+            result[i, j] = dot_product(A[i, :], B[:, j])
+    return result
+
+def matrix_inverse(A):
+    return np.linalg.inv(A)
+
+def simplex_algorithm(A, b, c):
+    m, n = A.shape
+    B = np.eye(m)  # Initial basis matrix (identity matrix)
+    N = np.eye(n)  # Non-basic matrix (identity matrix)
+    c_B = c[:m]    # Coefficients of basic variables in the objective function
+    c_N = c[m:]    # Coefficients of non-basic variables in the objective function
+    
+    while True:
+        B_inv = matrix_inverse(B)
+        x_B = matrix_multiply(B_inv, b)  # Basic variables values
+        reduced_costs = c_N - matrix_multiply(matrix_multiply(c_B, B_inv), N)
+        
+        if all(reduced_costs <= 0):
+            break  # Optimality reached
+        
+        entering_var = np.argmax(reduced_costs)  # Determine entering variable
+        d = matrix_multiply(B_inv, A[:, entering_var])  # Compute direction vector
+        
+        if all(d <= 0):
+            return "Unbounded"  # Problem is unbounded
+        
+        ratios = np.divide(x_B, d, out=np.full_like(x_B, np.inf), where=d>0)
+        leaving_var = np.argmin(ratios)  # Determine leaving variable
+        
+        # Perform pivot operation to update the basis
+        pivot_row = A[leaving_var, :]
+        B_inv_leaving_row = B_inv[leaving_var, :]
+        pivot_element = pivot_row[entering_var]
+        
+        B = B - np.outer(B_inv_leaving_row, pivot_row) / pivot_element
+        N = A - np.outer(B_inv_leaving_row, A[:, entering_var]) / pivot_element
+        c_B = matrix_multiply(c[:m], B_inv)  # Update coefficients of basic variables in the objective function
+        c_N = c[m:] - matrix_multiply(c_B, N)
+        
+    return x_B, dot_product(c_B, b)  # Return optimal solution and objective value
